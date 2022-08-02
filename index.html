@@ -43,7 +43,7 @@ body.loading .modal {
 <div class="container">
 	<div class="jumbotron">
     	<h1>OpenCV - Circle Detection</h1> 
-    	<p>This website uses OpenCVJS to detect circles in any uploaded image.</p> 
+    	<p></p> 
   	</div>
 	<div class="row">
   		<div class="col-sm">
@@ -98,32 +98,32 @@ imgElement.onload = function() {
   cv.imshow('imageCanvas', mat);
 };
 
-document.getElementById('circlesButton').onclick = function() {
-	this.disabled = true;
+// document.getElementById('circlesButton').onclick = function() {
+// 	this.disabled = true;
 
-  	let mat = cv.imread('imageCanvas');
-	let dst = mat.clone();
-	let circles = new cv.Mat();
-	cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY, 0);
-	// You can try more different parameters
-	cv.HoughCircles(mat, circles, cv.HOUGH_GRADIENT,
-                1, 45, 75, 40, 0, 0);
-	// draw circles
-	for (let i = 0; i < circles.cols; ++i) {
-    	let x = circles.data32F[i * 3];
-    	let y = circles.data32F[i * 3 + 1];
-    	let radius = circles.data32F[i * 3 + 2];
-    	let center = new cv.Point(x, y);
-    	cv.circle(dst, center, radius, [0, 0, 0, 255], 3);
-	}
+//   	let mat = cv.imread('imageCanvas');
+// 	let dst = mat.clone();
+// 	let circles = new cv.Mat();
+// 	cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY, 0);
+// 	// You can try more different parameters
+// 	cv.HoughCircles(mat, circles, cv.HOUGH_GRADIENT,
+//                 1, 45, 75, 40, 0, 0);
+// 	// draw circles
+// 	for (let i = 0; i < circles.cols; ++i) {
+//     	let x = circles.data32F[i * 3];
+//     	let y = circles.data32F[i * 3 + 1];
+//     	let radius = circles.data32F[i * 3 + 2];
+//     	let center = new cv.Point(x, y);
+//     	cv.circle(dst, center, radius, [0, 0, 0, 255], 3);
+// 	}
 	
-	cv.imshow('imageCanvas', dst);
-	mat.delete();
-	dst.delete();
-	circles.delete();
+// 	cv.imshow('imageCanvas', dst);
+// 	mat.delete();
+// 	dst.delete();
+// 	circles.delete();
 
-	this.disabled = false;
-};
+// 	this.disabled = false;
+// };
 
 document.getElementById('button').onclick = function() {
     this.href = document.getElementById("imageCanvas").toDataURL();
