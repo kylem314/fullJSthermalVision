@@ -42,54 +42,96 @@ body.loading .modal {
 <body>
 <div class="container">
 	<div class="jumbotron">
-    	<h1>OpenCV - Circle Detection</h1> 
+    	<h1>MakeSafe Tools - Thermal Imaging</h1> 
     	<p></p> 
   	</div>
 	<div class="row">
   		<div class="col-sm">
   			<div class="card">
 			  	<div class="card-header">
-			    Original Image
+			    Original Video
 			  	</div>
 			  	<div class="card-block text-center">
 			    	<img id="imageOriginal" alt="Upload" class="card-img-top"/>
 			  	</div>
 			  	<div class="card-footer text-muted">
-			    	<input type="file" id="imageInput" name="file" />
+			    	<input type="file" id="fileInput" name="file" />
 			  	</div>
+				<video id="videoInput"></video>
 			</div>
   		</div>
   		<div class="col-sm">
-  			<div class="card">
-			  	<div class="card-header">
-			    Modified Image
-			  	</div>
-			  	<div class="card-block">
-			    	<canvas id="imageCanvas"></canvas>
-			  	</div>
-			  	<ul class="list-group list-group-flush">
-				    <li class="list-group-item">
-				    	<button type="button" id="circlesButton" class="btn btn-primary">Circle Detection</button>
-				    </li>
-				</ul>
-				<div class="card-footer">
-				    <a href="#" id="button" class="card-link">Download Image</a>
+			<div class="card">
+				<div class="card-header">
+			  Video display
 				</div>
-			</div>
-  		</div>
+				<div class="card-block">
+				  <canvas id="canvasOutput"></canvas>
+				</div>
+				<ul class="list-group list-group-flush">
+				  <li class="list-group-item">
+					  <button type="button"id="circlesButton" class="btn btn-primary">Analyze</button>
+				  </li>
+			  </ul>
+		  </div>
+		</div>  
+		<div class="col-sm">
+			<div class="card">
+				<div class="card-header">
+			  Testing utils
+				</div>
+				<div class="card-block">
+				  <canvas id="canvasUtilsTest"></canvas>
+				</div>
+				<ul class="list-group list-group-flush">
+				  <li class="list-group-item">
+					  <button type="button"id="circlesButton" class="btn btn-primary">Analyze</button>
+				  </li>
+			  </ul>
+		  </div>
+		</div>  
   	</div>
 </div>
 <div class="modal"></div>
+<!-- <script async src="opencv.js" onload="onOpenCvReady();" type="text/javascript"></script> -->
+<!-- <script>
+	function onOpenCvReady() {
+		console.log(`body classes:${JSON.stringify(document.body)}`);
+  		document.body.classList.remove("loading");
+		console.log(`body classes:${JSON.stringify(document.body)}`);
+	}
+</script> -->
+<script src="opencv.js"></script>
+<script src="utils.js"></script>
 <script type="text/javascript">
-document.body.classList.add("loading");
+
+// onOpenCvReady();
+
+// document.body.classList.add("loading");
+
 
 let imgElement = document.getElementById('imageOriginal');
-let inputElement = document.getElementById('imageInput');
+let inputElement = document.getElementById('fileInput');
+let video = document.getElementById("videoInput");
+let canvasOutput = document.getElementById("canvasOutput");
+var context = canvasOutput.getContext('2d');
+
 inputElement.addEventListener('change', (e) => {
   imgElement.src = URL.createObjectURL(e.target.files[0]);
+  video.src = URL.createObjectURL(e.target.files[0]);
   // url create object url gives the path to the uploaded file
   console.log(e.target.files[0]);
   console.log(URL.createObjectURL(e.target.files[0]));
+  console.log("1" + video.src)
+  console.log("2" + video)
+
+//   let canvasUtils = document.getElementById("canvasUtilsTest")
+//   let utils = new Utils('errorMessage');
+//   utils.loadImageToCanvas(imgElement.src, 'canvasUtils');
+
+  // Start video
+  setTimeout(processVideo, 0);
+
 }, false);
 let mat;
 
@@ -98,42 +140,35 @@ imgElement.onload = function() {
   cv.imshow('imageCanvas', mat);
 };
 
-// document.getElementById('circlesButton').onclick = function() {
-// 	this.disabled = true;
+var height = 500;
+var width = 500;
+let src = new cv.Mat(height, width, cv.CV_8UC4);
+let dst = new cv.Mat(height, width, cv.CV_8UC1);
+let cap = new cv.VideoCapture(video);
+const FPS = 30;
+function processVideo() {
+	let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-//   	let mat = cv.imread('imageCanvas');
-// 	let dst = mat.clone();
-// 	let circles = new cv.Mat();
-// 	cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY, 0);
-// 	// You can try more different parameters
-// 	cv.HoughCircles(mat, circles, cv.HOUGH_GRADIENT,
-//                 1, 45, 75, 40, 0, 0);
-// 	// draw circles
-// 	for (let i = 0; i < circles.cols; ++i) {
-//     	let x = circles.data32F[i * 3];
-//     	let y = circles.data32F[i * 3 + 1];
-//     	let radius = circles.data32F[i * 3 + 2];
-//     	let center = new cv.Point(x, y);
-//     	cv.circle(dst, center, radius, [0, 0, 0, 255], 3);
-// 	}
-	
-// 	cv.imshow('imageCanvas', dst);
-// 	mat.delete();
-// 	dst.delete();
-// 	circles.delete();
+    let begin = Date.now();
+	console.log("begin" + begin);
+	putImageData(img,0,0);
+    // context.drawImage(video, 0, 0, width, height);
+    src.data.set(context.getImageData(0, 0, width, height).data);
+    cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+    cv.imshow("canvasOutput", dst); // canvasOutput is the id of another <canvas>;
+    // schedule next one.
+    let delay = 1000/FPS - (Date.now() - begin);
+	// cv.waitKey();
+	console.log(delay);
+    // setTimeout(processVideo, delay);
+}
 
-// 	this.disabled = false;
+
+// document.getElementById('button').onclick = function() {
+//     this.href = document.getElementById("imageCanvas").toDataURL();
+//     this.download = "image.png";
 // };
 
-document.getElementById('button').onclick = function() {
-    this.href = document.getElementById("imageCanvas").toDataURL();
-    this.download = "image.png";
-};
-
-function onOpenCvReady() {
-  document.body.classList.remove("loading");
-}
 </script>
-<script async src="opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 </body>
 </html>
